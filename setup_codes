@@ -1,0 +1,189 @@
+
+
+  Setting up a Raspberry Pi to run a Magic Mirror on can be a bit daunting if you havent used a raspberry pi or a linux computer before. But it isnt as hard as it seems, and by following this handy setup guide, you can be up and running in no time.
+
+This article was updated in September of 2020, so it should be up to date ðŸ™‚
+
+So lets dive in and we start by..
+1. Installing Raspbian Jessie
+
+    Download Etcher and install it to your computer. Its available for both Windows or OSX
+    Connect an SD card reader with your SD card inside.
+    Grab Raspbian Jessie from here. This is the operating system for your Pi
+    Open Etcher and select the Raspbian Stretch image you downloaded.
+    Select the SD card you wish to write your image to.
+    Review your selections and click Flash! to begin writing data to the SD card.
+
+2. Boot up your Raspberry Pi
+
+Unmount the SD card from your PC and insert it into your Pi. Youll need to connect the Pi to power and to a monitor, as well as hooking up a mouse and keyboard. After booting up, you will see the Raspbian desktop screen.
+3. Connect the Pi to your Wifi
+
+Your Pi needs the internet to update stuff that it shows you, so you have to connect to a Wifi network. In the top right corner of your screen, you should see a network icon that looks like two computers with an X. Click on it connect to your wifi network
+4. Identify your Piâ€™s IP address
+
+To do this, you have to open up your Piâ€™s terminal. Move your mouse to the top left corner, click Menu > Accessories > Terminal
+
+When in the terminal, type in the command:
+	
+ifconfig
+
+Youâ€™ll see some text appear, and your Piâ€™s IP address is next to â€œinet addrâ€. It most likely looks something like 192.168.x.x
+
+
+5. Enable SSH on your Pi and connect remotely
+
+SSH (Secure shell) is a network protocol thatâ€™s used to connect to computers remotely. That way, you can send commands to your Pi from your PC, which is handy if itâ€™s hanging up on the wall behind a mirror!
+
+First you have to enable SSH on your Pi. Go to Preferences > Raspberry Pi > Configuration > Interfaces and enable SSH.
+
+After youâ€™ve enabled SSH, restart your Raspberry Pi.
+
+After the Pi has booted up, open up your PC computerâ€™s terminal (Terminal on a Mac or Command Prompt in Windows) and type in the following command:
+
+	
+ssh pi@192.168.x.x
+
+Just replace the part after the @ sign with your Piâ€™s IP address. You will be asked to put in a password, which on a Raspberry Pi is â€œraspberryâ€ by default.
+6. Install Magic Mirror on your Raspberry Pi
+
+the MMÂ² platform is very easy to install. You just have to type in a single command to install it.
+
+copy and paste the following into the Terminal:
+
+	
+bash -c "$(curl -sL https://raw.githubusercontent.com/sdetweil/MagicMirror_scripts/master/raspberry.sh)"
+
+ 
+
+If you get an error that says â€œUnable to install dependencies!â€ you have to install an older version of Electron:
+
+	
+sudo npm install -g electron@1.7.6
+
+The installer will ask if you would like to use pm2 to automatically boot up into the Magic Mirror dashboard. type in y and press enter to confirm, since we want to make the mirror start up automatically if the power goes out, for example.
+
+Now youâ€™re ready to start up your Magic Mirror, so type in the following:
+	
+cd ~/MagicMirror
+
+DISPLAY=:0 npm start
+7. Make Magic Mirror automatically start when the Pi boots up
+
+We want Magic Mirror to start up automatically, so type in the following command:
+
+	
+pm2 startup  
+
+stop here once it has displayed
+
+ 
+
+A different command will appear. Run that command also.
+
+Now create a shell script for startup. Open up the built-in text editor on the Pi by typing in:
+1
+2
+	
+cd ~
+nano mm.sh
+
+The lower line basically means, â€œopen up a file called mm.sh in the nano text editor.â€
+
+When the text editor has opened, add this to the mm.sh file:
+
+	
+cd ~/MagicMirror
+DISPLAY=:0 npm start
+
+Exit the editor by pressing ctrl+x and type in y to save the file.
+
+Make your shiny new script executable by typing in:
+
+	
+chmod +x mm.sh
+
+Now start up Magic Mirror and make it start up on boot:
+
+	
+pm2 start mm.sh
+
+pm2 save
+
+Now, reboot your Pi by typing in
+
+	
+sudo reboot
+Additional steps:
+
+Rotate the display to portrait mode if your mirror isnâ€™t landscape:
+
+	
+sudo nano /boot/config.txt
+
+Add the following line to the file:
+
+	
+display_rotate=1
+
+Keep the screen from going to sleep:
+
+	
+sudo nano ~/.config/lxsession/LXDE/autostart
+
+Add the following lines to that file:
+
+	
+@xset s noblank
+@xset s off
+@xset -dpms
+
+Press ctrl+x, save the file and reboot your Pi. If all went well, Magic Mirror should start up after about 1-2 minutes. If it doesnâ€™t allow you to save, try opening the file again without the â€œsudoâ€ command.
+
+You will have to edit your config file to set up weather, calendar and other stuff.
+
+ 
+
+Was the tutorial useful? Consider supporting me and:
+
+Buy me a coffee â¤
+
+ 
+Additional settings for best experience (optional)
+
+Here are some additional settings you can use if your smart mirror project needs them. Just copy/type them into the terminal like before.
+Rotate the screen (if you have a portrait oriented mirror):
+
+1. edit /boot/config.txt:
+
+	
+sudo nano /boot/config.txt
+
+2. Add the following lines to the config file:
+
+	
+display_rotate=1
+avoid_warnings=1
+
+3. Reboot the Raspberry pi:
+
+	
+sudo reboot
+Set the mouse cursor to auto-hide mode:
+
+Install the unclutter utility:
+
+	
+sudo apt-get install unclutter
+
+
+if u are experiencing multiple loading use this
+
+pm2 stop mm
+pm2 delete mm
+pm2 save
+rm ~/mm.sh
+
+then sudo reboot
+
+
